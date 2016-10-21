@@ -20,7 +20,7 @@ CalcNormalImpvol <- function(
   
   n.price = length(price)
   n.strike = length(strike)
-  
+
   if( length(strike) > 1L ) {
     stopifnot(n.price == n.strike )
     strike.vec <- strike
