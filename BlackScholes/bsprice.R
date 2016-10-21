@@ -1,6 +1,6 @@
 
 #-------------------GBM option pricing --------------------
-bsprice <- function(type, s, k, T, r, b, sigma){
+bsprice <- function(type = 'call', spot, strike = spot, t.exp = 1, r = 0, b = 0, sigma){
     #------------------------------------------------
     #------------------------------------------------
     #Imput: type("call","put","straddle","digit")
@@ -18,25 +18,26 @@ bsprice <- function(type, s, k, T, r, b, sigma){
     stdev <- sigma*sqrt(T)
     d1 <- (log(s/k)+(b+0.5*sigma^2)*T) / stdev
     d2 <- d1 - stdev
+    disc.factor <- exp(-r*t.exp)
   
     pnorm.d1 <- pnorm(d1)
     pnorm.d2 <- pnorm(d2)
-      
+    
     if (type == "call" ){
-        price <- exp((b-r)*T)*s*pnorm.d1 - k*exp(-r*T)*pnorm.d2
-        delta <- exp((b-r)*T)*pnorm.d1
+        price <- spot*exp(b*t.exp)*pnorm.d1 - strike*pnorm.d2
+        delta <- exp(b*t.exp) * pnorm.d1
     }else if (type == "put"){
-        price <- k*exp(-r*T)*(1-pnorm.d2) - exp((b-r)*T)*s*(1-pnorm.d1)
-        delta <- exp((b-r)*T)*pnorm.d1 - 1
+        price <- strike*(1-pnorm.d2) - spot*exp(b*t.exp)*(1-pnorm.d1)
+        delta <- exp(b*t.exp) * pnorm.d1 - 1
     }else if (type == "straddle"){
-        price <- exp((b-r)*T)*s*pnorm.d1 - k*exp(-r*T)*pnorm.d2 + k*exp(-r*T)*pnorm(-d2) - exp((b-r)*T)*s*pnorm(-d1)
-        delta <- 2*exp((b-r)*T)*pnorm.d1 - 1
+        price <- exp(b*t.exp)*spot*pnorm.d1 - strike*pnorm.d2 + strike*(1-pnorm.d2) - exp(b*t.exp)*spot*(1-pnorm.d1)
+        delta <- 2*exp(b*t.exp)*pnorm.d1 - 1
     }else if (type == "digit"){
-        price <- exp(-r*T)*pnorm.d2*1
-        delta <- exp(-r*T)/sqrt(2*pi)*exp(-d2^2/2)/(s*stdev)
+        price <- pnorm.d2
+        delta <- 1/sqrt(2*pi)*exp(-d2^2/2)/(s*stdev)
     }
     
-    return(c(price=price,delta=delta))
+    return( disc.fac * c(price=price,delta=delta) )
 }
 
 

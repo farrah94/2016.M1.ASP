@@ -1,6 +1,6 @@
 #------------- European Normal Black-Sholes ------------
-bsnormal <- function(type, s, k, t, r,sigma ){
-  
+bsnormal <- function(type = 'call', spot, strike = spot, t.exp = 1, r=0, div=0, sigma ){
+
   #------------------------------------------------
   #------------------------------------------------
   #Inputs: 
@@ -18,52 +18,51 @@ bsnormal <- function(type, s, k, t, r,sigma ){
   #------------------------------------------------
   #------------------------------------------------
   
-  stdev <- sigma*sqrt(t)
-  d1=(s-k) / stdev
+  stdev <- sigma*sqrt(t.exp)
+  d1=(spot-strike) / stdev
   pnorm.d1 <- pnorm(d1) # normal CDF
   dnorm.d1 <- dnorm(d1) # normal PDF =exp(-d1*d1/2)/sqrt(2*pi)
+  disc.factor <- exp(-r*t.exp)
   
   if(type=="call"){
     #Option Price
-    price=exp(-r*t)*( (s-k)*pnorm.d1 + stdev*dnorm.d1 )
+    price <- (spot-strike)*pnorm.d1 + stdev*dnorm.d1
     #Greeks
-    delta=exp(-r*t)*pnorm(d1)#Delta
-    gamma=exp(-r*t)/(sigma*t)/sqrt(2*pi)*exp(-d1^2/2)#Gamma
-    vega=exp(-r*t)*sqrt(t)/sqrt(2*pi)*exp(-d1^2/2)#Vega
+    delta <- pnorm.d1 #Delta
+    gamma <- 1 / (sigma*t)/sqrt(2*pi)*exp(-d1^2/2)#Gamma
+    vega <- sqrt(t)/sqrt(2*pi)*exp(-d1^2/2)#Vega
 
   }else if (type=="put"){
     #Option Price
-    price=exp(-r*t)*((k-s)*(1-pnorm.d1) + stdev*dnorm.d1 )
+    price <- (strike-spot)*(1-pnorm.d1) + stdev*dnorm.d1
     #Greeks
-    delta=-exp(-r*t)*pnorm(-d1)#Delta
-    gamma=exp(-r*t)/(sigma*t)/sqrt(2*pi)*exp(-d1^2/2)#Gamma
-    vega=exp(-r*t)*sqrt(t)/sqrt(2*pi)*exp(-d1^2/2)#Vega
-    
+    delta <- pnorm.d1 - 1 #Delta
+    gamma <- 1 / (sigma*t)/sqrt(2*pi)*exp(-d1^2/2)#Gamma
+    vega <- sqrt(t)/sqrt(2*pi)*exp(-d1^2/2)#Vega
     
   } else if (type=="straddle"){
     #Straddle price
-    price=exp(-r*t)*((s-k)*pnorm(d1)+sigma*exp(-d1^2/2)*sqrt(t/(2*pi)))+exp(-r*t)*((k-s)*pnorm(-d1)+sigma*exp(-d1^2/2)*sqrt(t/(2*pi)))
-    delta=exp(-r*t)*pnorm(d1)-exp(-r*t)*pnorm(-d1)
-    gamma=2*exp(-r*t)/(sigma*t)/sqrt(2*pi)*exp(-d1^2/2)
-    vega=2*exp(-r*t)*sqrt(t)/sqrt(2*pi)*exp(-d1^2/2)#Vega
+    price <- ((spot-strike)*pnorm(d1)+sigma*exp(-d1^2/2)*sqrt(t/(2*pi)))+disc.factor * ((strike-spot)*pnorm(-d1)+sigma*exp(-d1^2/2)*sqrt(t/(2*pi)))
+    delta <- 2*pnorm.d1 - 1
+    gamma <- 2 / (sigma*t)/sqrt(2*pi)*exp(-d1^2/2)
+    vega <- 2 * sqrt(t)/sqrt(2*pi)*exp(-d1^2/2)#Vega
     
   } else if (type== "digital call"){
     #Digital call price
-    price=exp(-r*t)*pnorm(d1)
-    delta=exp(-r*t)/sqrt(2*pi)*exp(-d1^2/2)/(sigma*sqrt(t))
-    gamma=exp(-r*t)/sqrt(2*pi)*exp(-d1^2/2)/(sigma^2*t)
-    vega=-exp(-r*t)/sqrt(2*pi)*exp(-d1^2/2)*(s-k)/(sigma^2*sqrt(t))
+    price <- pnorm(d1)
+    delta <- 1 / sqrt(2*pi)*exp(-d1^2/2)/(sigma*sqrt(t))
+    gamma <- 1 / sqrt(2*pi)*exp(-d1^2/2)/(sigma^2*t)
+    vega <- -1 / sqrt(2*pi)*exp(-d1^2/2)*(spot-strike)/(sigma^2*sqrt(t))
       
   } else if (type== "digital put"){
     #Digital put price
-    price=exp(-r*t)*pnorm(-d1)
-    delta=-exp(-r*t)/sqrt(2*pi)*exp(-d1^2/2)/(sigma*sqrt(t))
-    gamma=exp(-r*t)/sqrt(2*pi)*exp(-d1^2/2)/(sigma^2*t)
-    vega=-exp(-r*t)/sqrt(2*pi)*exp(-d1^2/2)*(s-k)/(sigma^2*sqrt(t))
-    
+    price <- pnorm(-d1)
+    delta <- -1 / sqrt(2*pi)*exp(-d1^2/2)/(sigma*sqrt(t))
+    gamma <- 1 / sqrt(2*pi)*exp(-d1^2/2)/(sigma^2*t)
+    vega <- -1 / sqrt(2*pi)*exp(-d1^2/2)*(spot-strike)/(sigma^2*sqrt(t))
   } else {
     cat("Error! Please input: call/put/straddle/digital call/digital put")
   }
-  return(c(price=price,delta=delta, gamma=gamma,vega=vega))
+  return( disc.factor * c(price=price,delta=delta, gamma=gamma,vega=vega) )
 }
 
