@@ -1,5 +1,8 @@
 #------------- European Normal Black-Sholes ------------
-bsnormal <- function(type = 'call', spot, strike = spot, t.exp = 1, r=0, div=0, sigma ){
+CalcNormalPrice <- function(
+  type = 'call', spot, forward = spot*exp((r-div)*t.exp),
+  strike = forward, t.exp = 1, r = 0, div = 0, sigma
+){
 
   #------------------------------------------------
   #------------------------------------------------
@@ -19,33 +22,33 @@ bsnormal <- function(type = 'call', spot, strike = spot, t.exp = 1, r=0, div=0, 
   #------------------------------------------------
   
   stdev <- sigma*sqrt(t.exp)
-  d1=(spot-strike) / stdev
+  d1 <- (forward-strike) / stdev
   pnorm.d1 <- pnorm(d1) # normal CDF
   dnorm.d1 <- dnorm(d1) # normal PDF =exp(-d1*d1/2)/sqrt(2*pi)
   disc.factor <- exp(-r*t.exp)
   
   if(type=="call"){
     #Option Price
-    price <- (spot-strike)*pnorm.d1 + stdev*dnorm.d1
+    price <- (forward-strike)*pnorm.d1 + stdev*dnorm.d1
     #Greeks
     delta <- pnorm.d1 #Delta
-    gamma <- 1 / (sigma*t)/sqrt(2*pi)*exp(-d1^2/2)#Gamma
-    vega <- sqrt(t)/sqrt(2*pi)*exp(-d1^2/2)#Vega
+    gamma <- 1 / (sigma*t.exp)/sqrt(2*pi)*exp(-d1^2/2)#Gamma
+    vega <- sqrt(t.exp)/sqrt(2*pi)*exp(-d1^2/2)#Vega
 
   }else if (type=="put"){
     #Option Price
-    price <- (strike-spot)*(1-pnorm.d1) + stdev*dnorm.d1
+    price <- (strike-forward)*(1-pnorm.d1) + stdev*dnorm.d1
     #Greeks
     delta <- pnorm.d1 - 1 #Delta
-    gamma <- 1 / (sigma*t)/sqrt(2*pi)*exp(-d1^2/2)#Gamma
-    vega <- sqrt(t)/sqrt(2*pi)*exp(-d1^2/2)#Vega
+    gamma <- 1 / (sigma*t.exp)/sqrt(2*pi)*exp(-d1^2/2)#Gamma
+    vega <- sqrt(t.exp)/sqrt(2*pi)*exp(-d1^2/2)#Vega
     
   } else if (type=="straddle"){
     #Straddle price
-    price <- ((spot-strike)*pnorm(d1)+sigma*exp(-d1^2/2)*sqrt(t/(2*pi)))+disc.factor * ((strike-spot)*pnorm(-d1)+sigma*exp(-d1^2/2)*sqrt(t/(2*pi)))
+    price <- (forward-strike)*(2*pnorm.d1-1) + 2*stdev*dnorm.d1
     delta <- 2*pnorm.d1 - 1
-    gamma <- 2 / (sigma*t)/sqrt(2*pi)*exp(-d1^2/2)
-    vega <- 2 * sqrt(t)/sqrt(2*pi)*exp(-d1^2/2)#Vega
+    gamma <- 2 / (sigma*t.exp)/sqrt(2*pi)*exp(-d1^2/2)
+    vega <- 2 * sqrt(t.exp)/sqrt(2*pi)*exp(-d1^2/2)#Vega
     
   } else if (type== "digital call"){
     #Digital call price
@@ -63,6 +66,6 @@ bsnormal <- function(type = 'call', spot, strike = spot, t.exp = 1, r=0, div=0, 
   } else {
     cat("Error! Please input: call/put/straddle/digital call/digital put")
   }
-  return( disc.factor * c(price=price,delta=delta, gamma=gamma,vega=vega) )
+  return( disc.factor * price )
 }
 
