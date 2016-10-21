@@ -18,11 +18,14 @@ bsnormal <- function(type, s, k, t, r,sigma ){
   #------------------------------------------------
   #------------------------------------------------
   
+  stdev <- sigma*sqrt(t)
+  d1=(s-k) / stdev
+  pnorm.d1 <- pnorm(d1) # normal CDF
+  dnorm.d1 <- dnorm(d1) # normal PDF =exp(-d1*d1/2)/sqrt(2*pi)
   
-  d1=(s-k)/(sigma*sqrt(t))
   if(type=="call"){
     #Option Price
-    price=exp(-r*t)*((s-k)*pnorm(d1)+sigma*exp(-d1^2/2)*sqrt(t/(2*pi)))
+    price=exp(-r*t)*( (s-k)*pnorm.d1 + stdev*dnorm.d1 )
     #Greeks
     delta=exp(-r*t)*pnorm(d1)#Delta
     gamma=exp(-r*t)/(sigma*t)/sqrt(2*pi)*exp(-d1^2/2)#Gamma
@@ -30,7 +33,7 @@ bsnormal <- function(type, s, k, t, r,sigma ){
 
   }else if (type=="put"){
     #Option Price
-    price=exp(-r*t)*((k-s)*pnorm(-d1)+sigma*exp(-d1^2/2)*sqrt(t/(2*pi)))
+    price=exp(-r*t)*((k-s)*(1-pnorm.d1) + stdev*dnorm.d1 )
     #Greeks
     delta=-exp(-r*t)*pnorm(-d1)#Delta
     gamma=exp(-r*t)/(sigma*t)/sqrt(2*pi)*exp(-d1^2/2)#Gamma
