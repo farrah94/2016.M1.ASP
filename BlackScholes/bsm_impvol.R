@@ -12,7 +12,7 @@ CalcBsmImpvol <- function(
     #-------------------------------------------------
     #-------------------------------------------------
 
-    price.forward = price * exp(r*t.exp)
+    price.forward = price*exp(r*t.exp)
     
     n.price = length(price.forward)
     n.strike = length(strike)
