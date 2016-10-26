@@ -8,10 +8,10 @@ r <- 0.05
 
 # Compute Price on different strikes
 ( price <- CalcBsmPrice(spot=spot, t.exp = t.exp, sigma=sigma, strike=strike, r=r) )
+plot( strike, price, col ='blue' )
 
 # Compute implied volatility
 ( impvol <- CalcBsmImpvol(price=price, spot=spot, strike=strike, t.exp=t.exp, r=r) )
-
 
 
 #### Testing Normal price & implied vol functions
