@@ -11,7 +11,7 @@ CalcBsmPrice <- function(
     #       T is the time to maturity
     #       r is the risk-free rate
     #       b is the cost of carry (b eauals 0 for a future)
-    #       sigma is the colatility
+    #       sigma is the volatility
     #Return: the option price
     #        delta of the option
     #------------------------------------------------
