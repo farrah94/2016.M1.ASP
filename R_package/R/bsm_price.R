@@ -9,6 +9,13 @@
 #' @param div dividend rate
 #' @param sigma volatility
 #' @return option price
+#' @examples
+#' spot <- 100
+#' strike <- seq(80,125,5)
+#' t.exp <- 1.2
+#' sigma <- 0.2
+#' r <- 0.05
+#' price <- CalcBsmPrice(spot=spot, t.exp = t.exp, sigma=sigma, strike=strike, r=r)
 #' @export
 CalcBsmPrice <- function(
   type = 'call', spot, forward = spot*exp((r-div)*t.exp),
