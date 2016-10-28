@@ -9,6 +9,7 @@
 #' @param r interest rate
 #' @param div dividend rate
 #' @return implied vol
+#' @examples
 #' spot <- 100
 #' strike <- 100
 #' t.exp <- 1.2

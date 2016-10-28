@@ -3,4 +3,5 @@
 export(CalcBsmImpvol)
 export(CalcBsmPrice)
 export(CalcNormalImpvol)
+export(CalcNormalImpvolSabrHagan)
 export(CalcNormalPrice)
