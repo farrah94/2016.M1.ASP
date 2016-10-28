@@ -33,7 +33,7 @@ rho <- -0.0286
 forward <- 4.35/100
 strike <- c( 4, seq(4.05,4.95,0.1), 5)/100
 t.exp <- 10
-vol <- CalcNormalImpvolSabrHagan(strike=strike, forward=forward, sigma0=sigma0, t.exp=t.exp, alpha=alpha, rho=rho)
+vol <- phbsasp::CalcNormalImpvolSabrHagan(strike=strike, forward=forward, sigma0=sigma0, t.exp=t.exp, alpha=alpha, rho=rho)
 price <- phbsasp::CalcNormalPrice(forward=forward, strike=strike, t.exp=t.exp, sigma=vol)
 }
 
