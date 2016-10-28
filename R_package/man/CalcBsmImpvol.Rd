@@ -30,4 +30,13 @@ Implied vol
 \description{
 Calculate Black-Scholes-Merton implied vol
 }
+\examples{
+spot <- 100
+strike <- 100
+t.exp <- 1.2
+sigma <- 0.2
+r <- 0.05
+price <- 20
+vol <- phbsasp::CalcBsmImpvol(price=price, spot=spot, strike=strike, t.exp=t.exp, r=r)
+}
 

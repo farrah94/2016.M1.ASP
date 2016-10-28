@@ -36,6 +36,6 @@ strike <- seq(80,125,5)
 t.exp <- 1.2
 sigma <- 0.2
 r <- 0.05
-price <- CalcNormalPrice(spot=spot, t.exp = t.exp, sigma=sigma, strike=strike, r=r)
+price <- phbsasp::CalcNormalPrice(spot=spot, t.exp = t.exp, sigma=sigma, strike=strike, r=r)
 }
 
