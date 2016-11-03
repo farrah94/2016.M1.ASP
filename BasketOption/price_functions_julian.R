@@ -19,11 +19,11 @@ price.basket.gbm <- function( spot, sigma, rho, n.asset, t.exp=1, r=0, n, weight
 
 ## Monte Carlo Pricing under the ABM
 price.basket.nm <- function( spot, sigma, rho, n.asset, t.exp=1, r=0, n, weights = rep(1/n.asset, n.asset) ){
-  cov.mat <- sigma*(diag(n.asset)+(1-rho))
+  sigma.n <- sigma.bs * spot
+  cov.mat <- sigma.n*(diag(n.asset)+(1-rho))
   cov.chol <- t(chol(cov.mat)) 
   rn <- matrix(rnorm(n*n.asset), nrow=n.asset)
   rn.corr <- cov.chol %*% rn
-  sigma.n <- sigma.bs * spot
   path.nm <- spot + sigma.n*sqrt(t.exp)*rn.corr
   basket.nm <- t(weights %*% path.nm)
   price.nm <- sum(exp(-r*t.exp)*pmax(basket.nm-spot,0))/n
@@ -40,7 +40,7 @@ price.basket.bs <- function (
   var.basket <- as.vector( t(weights) %*% cov.mat %*% weights )
   spot.bs <- as.vector(t(weights) %*% spot)
   forward.bs <- as.vector(t(weights) %*% forward)
-  price.bs <- CalcBsmPrice( type = 'call', spot = spot.bs, forward = forward.bs, strike = strike = as.vector(t(weights) %*% strike), t.exp = t.exp, r = r, div = div, sigma = var.basket)
+  price.bs <- CalcBsmPrice( type = 'call', spot = spot.bs, forward = forward.bs, strike = as.vector(t(weights) %*% strike), t.exp = t.exp, r = r, div = div, sigma = var.basket)
   return ( price.bs )
 }
 
