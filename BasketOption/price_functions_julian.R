@@ -2,6 +2,9 @@
 ##### Basket Options Pricing Formula #####
 ##########################################
 
+#set seed explicitly for the MC simulation
+set.seed(9)
+
 ## Monte Carlo Pricing under the ABM
 price.basket.gbm <- function( spot, sigma, rho, n.asset, t.exp=1, r=0, n, weights = rep(1/n.asset, n.asset) ){
   cov.mat <- sigma*(diag(n.asset)+(1-rho))
@@ -31,7 +34,8 @@ price.basket.nm <- function( spot, sigma, rho, n.asset, t.exp=1, r=0, n, weights
 ## Analytic Pricing
 price.basket.bs <- function (
   type = 'call', spot, forward = spot*exp((r-div)*t.exp),
-  strike = forward, t.exp = 1, r = 0, div = 0, sigma, rho){
+  strike = forward, t.exp = 1, r = 0, div = 0, sigma, rho,
+  n.asset,  weights = rep(1/n.asset, n.asset)){
   cov.mat <- sigma*(diag(n.asset)+(1-rho))
   var.basket <- as.vector( t(weights) %*% cov.mat %*% weights )
   spot.bs <- t(weight) %*% spot
