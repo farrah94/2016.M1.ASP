@@ -21,22 +21,13 @@ CalcBsmPrice <- function(
   type = 'call', spot, forward = spot*exp((r-div)*t.exp),
   strike = forward, t.exp = 1, r = 0, div = 0, sigma
 ){
-    #------------------------------------------------
-    #------------------------------------------------
-    #Imput: type("call","put","straddle","digit")
-    #       s is current price
-    #       k is the strike price
-    #       T is the time to maturity
-    #       r is the risk-free rate
-    #       b is the cost of carry (b equals 0 for a future)
-    #       sigma is the volatility
-    #Return: the option price
-    #        delta of the option
-    #------------------------------------------------
-    #------------------------------------------------
-
     stdev <- sigma*sqrt(t.exp)
-    d1 <- log(forward/strike)/stdev +0.5*stdev
+
+    # a trick to get the intrinsic value for negative or zero vol
+    # also avoid NAN in case forward = strike
+    stdev[stdev < 1e-32] <- 1e-32
+
+    d1 <- log(forward/strike)/stdev + 0.5*stdev
     d2 <- d1 - stdev
     disc.factor <- exp(-r*t.exp)
 
