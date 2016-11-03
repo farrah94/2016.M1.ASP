@@ -21,7 +21,7 @@ price.basket.nm <- function( spot, sigma, rho, n.asset, t.exp, r ){
   rn.corr <- cov.chol %*% rn
   sigma.n <- sigma.bs * spot
   path.nm <- spot + sigma.n*sqrt(t.exp)*rn.corr
-  price.nm <- sum(exp(-r*t.exp)*pmax(price.basket.nm-spot,0))/n
+  price.nm <- sum(exp(-r*t.exp)*pmax(path.nm-spot,0))/n
   return ( price.nm )
 }
 
