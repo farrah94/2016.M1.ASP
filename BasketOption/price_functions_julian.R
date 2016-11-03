@@ -32,7 +32,7 @@ price.basket.nm <- function( spot, sigma, rho, n.asset, t.exp=1, r=0, n ){
 price.basket.bs <- function (
   type = 'call', spot, forward = spot*exp((r-div)*t.exp),
   strike = forward, t.exp = 1, r = 0, div = 0, sigma, rho){
-  cov.mat <- GetCovMat( sigma = sigma, rho = rho )
+  cov.mat <- sigma*(diag(n.asset)+(1-rho))
   var.basket <- as.vector( t(weights) %*% cov.mat %*% weights )
   spot.bs <- t(weight) %*% spot
   price.bs <- CalcBsmPrice( type = 'call', spot = spot.bs, forward = spot *exp((r-div)*t.exp), strike = strike, t.exp = t.exp, r = r, div = div, sigma = var.basket)
