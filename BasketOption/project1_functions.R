@@ -1,4 +1,4 @@
-CalBasketGBMMC <- function(sigma, corr, r, k,spot, weight, t.exp,n.sample=100000,seed=rnorm(1)){
+CalBasketGBMMC <- function(sigma, corr, r, k, spot, weight, t.exp,n.sample=100000,seed=rnorm(1)){
     #------------------------------------------------
     #------MC prcing call option price under GBM-----
     #Imput: sigma is volatility vector
@@ -22,12 +22,11 @@ CalBasketGBMMC <- function(sigma, corr, r, k,spot, weight, t.exp,n.sample=100000
     s.mat <- spot*exp((r-0.5*sigma^2)*t.exp+sqrt(t.exp)*rn.corr)
     portfolio.sample <- t(weight) %*% s.mat
     payoffs <- pmax(portfolio.sample-k,0)
-    price <- exp(-r*T)*mean(payoffs)
+    price <- exp(-r*t.exp)*mean(payoffs)
     return(price)
 }
 
-
-CalBasketNormalMC <- function(sigma, corr, r, k,spot, weight, t.exp,n.sample=100000,seed=rnorm(1)){
+CalBasketNormalMC <- function(sigma, corr, r, k, spot, weight, t.exp, n.sample=100000, seed=rnorm(1)){
     #------------------------------------------------
     #----MC prcing call option price under Normal----
     #    #Imput: sigma is volatility vector
@@ -51,12 +50,11 @@ CalBasketNormalMC <- function(sigma, corr, r, k,spot, weight, t.exp,n.sample=100
     s.mat <- spot*exp(r*t.exp)+sqrt(t.exp)*rn.corr
     portfolio.sample <- t(weight) %*% s.mat
     payoffs <- pmax(portfolio.sample-k,0)
-    price <- exp(-r*T)*mean(payoffs)
+    price <- exp(-r*t.exp)*mean(payoffs)
     return(price)
 }
 
-
-CalBasketCV <- function(sigma, corr, r, k,spot, weight, t.exp,n.sample=100000,seed=rnorm(1)){
+CalBasketCV <- function(sigma, corr, r, k, spot, weight, t.exp, n.sample=100000, seed=rnorm(1)){
     #------------------------------------------------
     #------MC prcing call option price with CV-------
     #Imput: sigma is volatility vector
@@ -73,7 +71,7 @@ CalBasketCV <- function(sigma, corr, r, k,spot, weight, t.exp,n.sample=100000,se
     #------------------------------------------------
     price.GBMMC <- CalBasketGBMMC(sigma = sigma,corr = corr,r = r,k = k,spot = spot,t.exp = t.exp,weight = weight,seed = seed)
     price.NormalMC <- CalBasketNormalMC(sigma = sigma,corr = corr,r = r,k = k,spot = spot,t.exp = t.exp,weight = weight,seed = seed)
-    cov.mat <- sigma %*% t(sigma) * corr 
+    cov.mat <- sigma %*% t(sigma) * corr
     portfolio.spot <- t(weight) %*% spot
     portfolio.var <- t(weight) %*%  cov.mat %*% weight
     portfolio.sigma <- sqrt(portfolio.var)
@@ -81,5 +79,3 @@ CalBasketCV <- function(sigma, corr, r, k,spot, weight, t.exp,n.sample=100000,se
     price <- price.GBMMC - price.NormalMC + price.NormalAnalystic
     return(price)
 }
-
-
