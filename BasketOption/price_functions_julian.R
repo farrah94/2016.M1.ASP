@@ -38,8 +38,9 @@ price.basket.bs <- function (
   n.asset,  weights = rep(1/n.asset, n.asset)){
   cov.mat <- sigma*(diag(n.asset)+(1-rho))
   var.basket <- as.vector( t(weights) %*% cov.mat %*% weights )
-  spot.bs <- t(weight) %*% spot
-  price.bs <- CalcBsmPrice( type = 'call', spot = spot.bs, forward = spot *exp((r-div)*t.exp), strike = strike, t.exp = t.exp, r = r, div = div, sigma = var.basket)
+  spot.bs <- as.vector(t(weights) %*% spot)
+  forward.bs <- as.vector(t(weights) %*% forward)
+  price.bs <- CalcBsmPrice( type = 'call', spot = spot.bs, forward = forward.bs, strike = strike = as.vector(t(weights) %*% strike), t.exp = t.exp, r = r, div = div, sigma = var.basket)
   return ( price.bs )
 }
 
