@@ -36,3 +36,9 @@ price.basket.bs <- function (
   price.bs <- CalcBsmPrice( type = 'call', spot = spot.bs, forward = spot *exp((r-div)*t.exp), strike = strike, t.exp = t.exp, r = r, div = div, sigma = var.basket)
   return ( price.bs )
 }
+
+#########################################
+##### Control Variance option price #####
+#########################################
+
+price.cv<- price.basket.gbm +( price.basket.bs - price.basket.nm) 
