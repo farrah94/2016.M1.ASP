@@ -1,5 +1,5 @@
 #------Plot Implied Volatility Under GBM and Displaced-GBM Model------
-# 
+#
 # Author: Yingxiang Li  yingxiangli@sz.pku.edu.cn
 # 2016/10/29
 #
@@ -22,7 +22,7 @@ price.bs <- phbsasp::CalcBsmPrice(type="call",spot=spot,strike=strike,
 #Get normal implied volatilities of BS prices
 impvol.normal <- phbsasp::CalcNormalImpvol(type="call",price=price.bs,spot=spot,
                                            strike=strike,t.exp=t.exp,r=r)
-impvol.normal <- impvol.normal/spot   #convert to percentage
+impvol.normal <- impvol.normal/spot   #convert to percentage [JC] why?? Actually we want to see the normal vol
 (impvol.normal)
 #Make plot
 plot( strike, impvol.normal, col ='blue',type = 'l' )
@@ -35,12 +35,14 @@ slope <- 1/2*(impvol.normal[14]-impvol.normal[12])/(strike[14]-strike[12])
 #Assignment Two
 #----BS Implied volatility of displaced-BS prices----
 #Get displaced-BS prices
+
+# [JC] the meaning of sigma is different in a displaced BS model, so you need to solve for a new sigma
 l <- 10
 price.displaced <- phbsasp::CalcBsmPrice(type = "call",spot=spot+l,strike=strike+l,
                                          t.exp=t.exp,r=r,sigma=sigma)
 (price.displaced)
 #Get BS implied volatilaties of prices under displaced GBM model
-impvol.bs <- phbsasp::CalcBsmImpvol(price=price.displaced, spot=spot, 
+impvol.bs <- phbsasp::CalcBsmImpvol(price=price.displaced, spot=spot,
                                             strike=strike, t.exp=t.exp, r=r)
 (impvol.bs)
 #Make plot

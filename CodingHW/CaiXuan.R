@@ -30,6 +30,7 @@ sigma_upper <- phbsasp::CalcNormalImpvol(type = 'call',price = phbsasp::CalcBsmP
 sigma_lower <- phbsasp::CalcNormalImpvol(type = 'call',price = phbsasp::CalcBsmPrice(type = 'call',t.exp= 1,spot = 1,strike= 1-dk,sigma = 0.3,r = 0.05),spot = 1,strike = 1-dk,r = 0.05,t.exp = 1)
 estimated_slope <- (sigma_upper - sigma_lower)/(2*dk)
 
+# [JC] How is the slope compared with sigma?
 
 
 #---------------------Assignment2---------------------
@@ -45,6 +46,9 @@ price_positiveL <- bs.displaced(type = 'call',s = 100,k = k,r = 0.05,sigma = 0.3
 price_negativeL <- bs.displaced(type = 'call',s = 100,k = k,r = 0.05,sigma = 0.3,T = 1,L = -1)
 imvol.positiveL <- vector(length=length(k))
 imvol.negativeL <- vector(length=length(k))
+# [JC] the meaning of sigma is different in a displaced BS model, so you need to solve for a new sigma
+
+
 
 for(i in 1:length(k)){
   try <- try(phbsasp::CalcBsmImpvol(type = 'call',price = price_positiveL[i],spot=100,strike=k[i],r = 0.05,t.exp= 1),silent=T)
@@ -72,9 +76,9 @@ text(x = c(70,70),y = c(0.295,0.310),labels = c('L=-1','L=1'))
 
 #---------------Calibration of DL BS model-------------
 # As is known that there are two parameters (L and sigma)
-# to be decided in the DL model, which means we need to 
+# to be decided in the DL model, which means we need to
 # provied to points on the implied volatility curve deriving
-# from the BS model(k1,k2,sigma1,sigma2) 
+# from the BS model(k1,k2,sigma1,sigma2)
 
 library(rootSolve)
 DL_calibration <- function(type='call', s=100, k,sigma, r=0.05, T=1){
