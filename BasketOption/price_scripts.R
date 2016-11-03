@@ -50,5 +50,5 @@ d1 <- (log(spot1/(spot2+strike))+(t.exp*0.5*(sigma.kirk)^2))/
         (sigma.kirk*sqrt(t.exp))
 d2 <- d1 - sigma.kirk*sqrt(t.exp)
 
-#??? call.kirk <- exp(-r*t.exp)*(spot1*N(d1) - ((spot2+strike)*N(d2)))  ??? N? pdf, cdf
+#??? call.kirk <- exp(-r*t.exp)*(spot1*N(d1) - ((spot2+strike)*N(d2)))  ??? N? pdf?
 put.kirk <- call.kirk + exp(-r*t.exp)*(spot2+strike-spot1)
