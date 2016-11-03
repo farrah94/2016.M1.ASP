@@ -27,3 +27,28 @@ plot(bootstrap.price[,1], type="l", col=2, lwd=3,
      ylab="Option price")
 lines(bootstrap.price[,2], type="l", col=3, lwd=3)
 lines(rep(price.bs, nrow(bootstrap.price)), col=5, lwd=3)
+
+
+#kirk approx
+
+# # #  
+#input
+
+#spot1 - spot price on contract 1,
+#spot2 - spot price on contract 2,
+#sigma1 - volatility 1,
+#sigma2 - volatility 2,
+#corr.kirk - correlation between the two contracts
+#strike - strike price of an option
+
+beta <- (sigma2*spot2)/(spot2+strike)
+sigma.kirk <- sqrt( sigma2^2 + beta^2 -
+                    (2*corr.kirk*sigma1*beta))
+
+# d <- log(spot1/(spot2+strike))/(sigma.kirk*sqrt(t.exp))
+d1 <- (log(spot1/(spot2+strike))+(t.exp*0.5*(sigma.kirk)^2))/
+        (sigma.kirk*sqrt(t.exp))
+d2 <- d1 - sigma.kirk*sqrt(t.exp)
+
+#??? call.kirk <- exp(-r*t.exp)*(spot1*N(d1) - ((spot2+strike)*N(d2)))  ??? N? pdf, cdf
+put.kirk <- call.kirk + exp(-r*t.exp)*(spot2+strike-spot1)
