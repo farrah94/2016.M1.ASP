@@ -2,10 +2,10 @@
 #use functions from phbs.asp.2016/BasketOption/price_functions_julian.R
 
 #create empty matrix for storing GBM & NM prices
-bootstrap.price <- matrix(nrow=100,ncol=2)
+bootstrap.price <- matrix(nrow=100,ncol=2)    #play with the nrow
 colnames(bootstrap.price) = c("gbm", "nm")
 
-for (j in 1:100) {
+for (j in 1:nrow(bootstrap.price)) {
   i <- floor(runif(1, min=0, max=10001))  #generate RN from uniform distribution
   set.seed(i)
   bootstrap.price[j,1] <- price.basket.gbm(spot=c(100,110,120,90),sigma=0.5,rho=0.5,n.asset = 4, n=1e5)   #store GBM price
