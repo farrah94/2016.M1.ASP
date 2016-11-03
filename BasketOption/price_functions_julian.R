@@ -3,7 +3,7 @@
 ##########################################
 
 ## Monte Carlo Pricing under the ABM
-price.basket.gbm <- function( spot, sigma, rho, n.asset, t.exp=1, r=0, n ){
+price.basket.gbm <- function( spot, sigma, rho, n.asset, t.exp=1, r=0, n, weights = rep(1/n.asset, n.asset) ){
   cov.mat <- sigma*(diag(n.asset)+(1-rho))
   cov.chol <- t(chol(cov.mat)) 
   rn <- matrix(rnorm(n*n.asset), nrow=n.asset)
@@ -15,7 +15,7 @@ price.basket.gbm <- function( spot, sigma, rho, n.asset, t.exp=1, r=0, n ){
 }
 
 ## Monte Carlo Pricing under the ABM
-price.basket.nm <- function( spot, sigma, rho, n.asset, t.exp=1, r=0, n ){
+price.basket.nm <- function( spot, sigma, rho, n.asset, t.exp=1, r=0, n, weights = rep(1/n.asset, n.asset) ){
   cov.mat <- sigma*(diag(n.asset)+(1-rho))
   cov.chol <- t(chol(cov.mat)) 
   rn <- matrix(rnorm(n*n.asset), nrow=n.asset)
