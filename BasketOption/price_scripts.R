@@ -17,9 +17,13 @@ for (j in 1:nrow(bootstrap.price)) {
 summary(bootstrap.price[,1])
 summary(bootstrap.price[,2])
 
+#get BS price
+price.bs <- price.basket.bs(spot=c(100,110,120,90),sigma=0.5,rho=0.5,n.asset = 4)
+
 #plot the bootstrap
 plot(bootstrap.price[,1], type="l", col=2, lwd=3,
-     ylim=c(min(bootstrap.price),max(bootstrap.price)), 
+     ylim=c(min(bootstrap.price,price.bs),max(bootstrap.price,price.bs)), 
      main="Price simulation",
      ylab="Option price")
 lines(bootstrap.price[,2], type="l", col=3, lwd=3)
+lines(rep(price.bs, nrow(bootstrap.price)), col=5, lwd=3)
