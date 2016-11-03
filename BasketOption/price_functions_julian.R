@@ -9,7 +9,8 @@ price.basket.gbm <- function( spot, sigma, rho, n.asset, t.exp=1, r=0, n ){
   rn <- matrix(rnorm(n*n.asset), nrow=n.asset)
   rn.corr <- cov.chol %*% rn
   path.gbm <- spot * exp(sigma*sqrt(t.exp)*rn.corr - 0.5*(sigma^2)*t.exp)
-  price.gbm <- sum(exp(-r*t.exp)*pmax(path.gbm-spot,0))/n
+  basket.gbm <- t(weights %*% path.gbm)
+  price.gbm <- sum(exp(-r*t.exp)*pmax(basket.gbm-spot,0))/n
   return ( price.gbm )
 }
 
@@ -21,7 +22,8 @@ price.basket.nm <- function( spot, sigma, rho, n.asset, t.exp=1, r=0, n ){
   rn.corr <- cov.chol %*% rn
   sigma.n <- sigma.bs * spot
   path.nm <- spot + sigma.n*sqrt(t.exp)*rn.corr
-  price.nm <- sum(exp(-r*t.exp)*pmax(path.nm-spot,0))/n
+  basket.nm <- t(weights %*% path.nm)
+  price.nm <- sum(exp(-r*t.exp)*pmax(basket.nm-spot,0))/n
   return ( price.nm )
 }
 
