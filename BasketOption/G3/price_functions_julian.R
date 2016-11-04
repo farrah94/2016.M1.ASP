@@ -17,6 +17,7 @@ price.basket.gbm <- function( spot, sigma, rho, n.asset, t.exp=1, r=0, n, weight
   return ( price.gbm )
 }
 
+set.seed(9)
 ## Monte Carlo Pricing under the ABM
 price.basket.nm <- function( spot, sigma, rho, n.asset, t.exp=1, r=0, n, weights = rep(1/n.asset, n.asset) ){
   sigma.n <- sigma.bs * spot
