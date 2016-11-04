@@ -39,26 +39,42 @@ lines(density(bootstrap.price[,2]))
 plot(density(bootstrap.price[,3]),
      main="Density plot for CV")
 
-#kirk approx
 
-# # #  
-#input
-
-#spot1 - spot price on contract 1,
-#spot2 - spot price on contract 2,
-#sigma1 - volatility 1,
-#sigma2 - volatility 2,
-#corr.kirk - correlation between the two contracts
-#strike - strike price of an option
-
-beta <- (sigma2*spot2)/(spot2+strike)
-sigma.kirk <- sqrt( sigma2^2 + beta^2 -
-                    (2*corr.kirk*sigma1*beta))
-
-# d <- log(spot1/(spot2+strike))/(sigma.kirk*sqrt(t.exp))
-d1 <- (log(spot1/(spot2+strike))+(t.exp*0.5*(sigma.kirk)^2))/
-        (sigma.kirk*sqrt(t.exp))
-d2 <- d1 - sigma.kirk*sqrt(t.exp)
-
-call.kirk <- exp(-r*t.exp)*(spot1*dnorm(d1) - ((spot2+strike)*dnorm(d2))) 
-put.kirk <- call.kirk + exp(-r*t.exp)*(spot2+strike-spot1)
+#kirk pricing model
+price.kirk <- function(spot1, spot2, sigma1, sigma2, strike,
+                       t.exp=1, rho=0.5, r=0, corr.kirk){
+  
+#inputs
+  #spot1 - spot price on contract 1,
+  #spot2 - spot price on contract 2,
+  #sigma1 - volatility 1,
+  #sigma2 - volatility 2,
+  #strike - strike price
+  #t.exp - time to expiry
+  #r - risk-free rate
+  #rho - sensitivity of an option
+  #corr.kirk - correlation matrix between the two futures contracts   
+  
+  #Greek; beta
+  beta <- (sigma2*spot2)/(spot2+strike)
+  
+  #portfolio sigma
+  sigma.kirk <- sqrt( sigma2^2 + beta^2 -
+                        (2*corr.kirk*sigma1*beta))
+  
+  #d <- log(spot1/(spot2+strike))/(sigma.kirk*sqrt(t.exp))
+  d1 <- (log(spot1/(spot2+strike))+(t.exp*0.5*(sigma.kirk)^2))/
+    (sigma.kirk*sqrt(t.exp))
+  d2 <- d1 - sigma.kirk*sqrt(t.exp)
+  
+  call.kirk <- exp(-r*t.exp)*(spot1*dnorm(d1) - ((spot2+strike)*dnorm(d2)))
+  #put.kirk <- call.kirk + exp(-r*t.exp)*(spot2+strike-spot1)
+  
+  return(call.kirk)
+}
+  
+#check result
+price.kirk(spot1=100, spot2=100,
+           sigma1=0.5, sigma2=0.5, 
+           t.exp=1, rho=0.5, r=0,
+           strike=100, corr.kirk=0.5)
