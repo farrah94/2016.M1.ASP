@@ -27,17 +27,18 @@ strikeD <- strike+L
 price <- phbsasp::CalcBsmPrice(spot=spot, t.exp = t.exp, sigma=sigma, strike=strike, r=r)
 impvol <- phbsasp::CalcNormalImpvol(price=price, spot=spot, strike=strike, t.exp=t.exp, r=r)
 
-plot( strike, impvol,
+plot( price, impvol,
       type="b", xlab = "price", ylab = "implied volatility",
       col="blue", lwd = 3,
       main = paste("normal implied volatility of BS prices"))
-lm(impvol ~ strike)$coefficients[2] # [JC] This is pretty nice, but how is the slope compared to sigma
-
+lines(impvol, col="red", lwd=3) # [SF] changed the plot
+slope <- lm(impvol ~ price)$coefficients[2] # [JC] This is pretty nice, but how is the slope compared to sigma
+cat("Slope:    ", slope, "\nSigma BS: ", sigma)  # [SF] comparison
 
 #Assignment 2
 # [JC] the meaning of sigma is different in a displaced BS model, so you need to solve for a new sigma
-sigmaD <- sigma*spot/spotD
-priceD <- phbsasp::CalcBsmPrice(spot=spotD, t.exp = t.exp, sigma=sigma, strike=strikeD, r=r)
+sigmaD <- (sigma*spot)/spotD
+priceD <- phbsasp::CalcBsmPrice(spot=spotD, t.exp = t.exp, sigma=sigmaD, strike=strikeD, r=r) # [SF] new sigma for CalcBsmPrice; that's it?
 impvol <- phbsasp::CalcBsmImpvol(price=priceD, spot=spot, strike=strike, t.exp=t.exp, r=r)
 
 plot( price, impvol,
