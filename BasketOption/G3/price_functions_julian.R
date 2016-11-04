@@ -50,4 +50,11 @@ price.basket.bs <- function (
 ##### Control Variance option price #####
 #########################################
 
-price.cv<- price.basket.gbm +( price.basket.bs - price.basket.nm) 
+#calc CV
+set.seed(4)
+p.gbm  <- price.basket.gbm(spot=c(100,110,120,90),sigma=0.5,rho=0.5,n.asset = 4, n=1e5)
+set.seed(4)
+p.nm <- price.basket.nm(spot=c(100,110,120,90),sigma=0.5,rho=0.5,n.asset = 4, n=1e5)
+p.bs <- price.basket.bs(spot=c(100,110,120,90),sigma=0.5,rho=0.5,n.asset = 4)
+
+price.cv<- p.gbm +( p.bs - p.nm) 
