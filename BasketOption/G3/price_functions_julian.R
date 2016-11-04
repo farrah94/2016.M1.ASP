@@ -20,8 +20,8 @@ price.basket.gbm <- function( spot, sigma, rho, n.asset, t.exp=1, r=0, n, weight
 set.seed(9)
 ## Monte Carlo Pricing under the ABM
 price.basket.nm <- function( spot, sigma, rho, n.asset, t.exp=1, r=0, n, weights = rep(1/n.asset, n.asset) ){
-  sigma.n <- sigma.bs * spot
-  cov.mat <- sigma.n*(diag(n.asset)+(1-rho))
+  sigma.n <- sigma * spot #sigma.bs
+  cov.mat <- sigma*(diag(n.asset)+(1-rho))
   cov.chol <- t(chol(cov.mat)) 
   rn <- matrix(rnorm(n*n.asset), nrow=n.asset)
   rn.corr <- cov.chol %*% rn
