@@ -28,6 +28,12 @@ plot(bootstrap.price[,1], type="l", col=2, lwd=3,
 lines(bootstrap.price[,2], type="l", col=3, lwd=3)
 lines(rep(price.bs, nrow(bootstrap.price)), col=5, lwd=3)
 
+#density plots
+plot(density(bootstrap.price[,1]), 
+     xlim=c(min(bootstrap.price,price.bs),max(bootstrap.price,price.bs)),
+     main="Density plots")
+lines(density(bootstrap.price[,2]))
+
 
 #kirk approx
 
