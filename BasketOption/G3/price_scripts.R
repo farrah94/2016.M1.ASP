@@ -6,14 +6,14 @@ bootstrap.price <- matrix(nrow=100,ncol=3)    #play with the nrow
 colnames(bootstrap.price) = c("gbm", "nm", "cv")
 
 #get BS price
-price.bs <- price.basket.bs(spot=c(100,110,120,90),sigma=0.5,rho=0.5,n.asset = 4)
+price.bs <- price.basket.bs(spot=100,sigma=0.4,rho=0.5,n.asset = 4)
 
 for (j in 1:nrow(bootstrap.price)) {
   i <- floor(runif(1, min=0, max=10001))  #generate RN from uniform distribution
   set.seed(i)
-  bootstrap.price[j,1] <- price.basket.gbm(spot=c(100,110,120,90),sigma=0.5,rho=0.5,n.asset = 4, n=1e5)   #store GBM price
+  bootstrap.price[j,1] <- price.basket.gbm(spot=100,sigma=0.4,rho=0.5,n.asset = 4, n=1e5)   #store GBM price
   set.seed(i)
-  bootstrap.price[j,2] <- price.basket.nm(spot=c(100,110,120,90),sigma=0.5,rho=0.5,n.asset = 4, n=1e5)    #store NM price
+  bootstrap.price[j,2] <- price.basket.nm(spot=100,sigma=0.4,rho=0.5,n.asset = 4, n=1e5)    #store NM price
   bootstrap.price[j,3] <- bootstrap.price[j,1] +( price.bs - bootstrap.price[j,2]) 
 }
 
@@ -22,24 +22,25 @@ summary(bootstrap.price[,1])
 summary(bootstrap.price[,2])
 summary(bootstrap.price[,3])
 
-#plot the bootstrap
-plot(bootstrap.price[,1], type="l", col=2, lwd=3,
-     ylim=c(min(bootstrap.price,price.bs),max(bootstrap.price,price.bs)), 
-     main="Price simulation",
-     ylab="Option price")
-lines(bootstrap.price[,2], type="l", col=3, lwd=3)
-lines(rep(price.bs, nrow(bootstrap.price)), col=5, lwd=3)
-
 #density plots
 plot(density(bootstrap.price[,1]), 
-     xlim=c(min(bootstrap.price,price.bs),max(bootstrap.price,price.bs)),
+     xlim=c(min(bootstrap.price[,1:2]),max(bootstrap.price[,1:2])),
+     ylim=c(0,10),
      main="Density plots")
 lines(density(bootstrap.price[,2]))
+
+#plot the bootstrap
+plot(bootstrap.price[,1], type="l", col=2, lwd=2,
+     ylim=c(min(bootstrap.price[,1:2]),max(bootstrap.price[,1:2])), 
+     main="Price simulation",
+     ylab="Option price")
+lines(bootstrap.price[,2], type="l", col=3, lwd=2)
 
 plot(density(bootstrap.price[,3]),
      main="Density plot for CV")
 
 
+#test!
 #kirk pricing model
 price.kirk <- function(spot1, spot2, sigma1, sigma2, strike,
                        t.exp=1, rho=0.5, r=0, corr.kirk){
