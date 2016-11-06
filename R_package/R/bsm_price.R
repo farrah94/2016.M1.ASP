@@ -18,7 +18,7 @@
 #' price <- phbsasp::CalcBsmPrice(spot=spot, t.exp = t.exp, sigma=sigma, strike=strike, r=r)
 #' @export
 CalcBsmPrice <- function(
-  type = 'call', spot, forward = spot*exp((r-div)*t.exp),
+  type = "call", spot, forward = spot*exp((r-div)*t.exp),
   strike = forward, t.exp = 1, r = 0, div = 0, sigma
 ){
     stdev <- sigma*sqrt(t.exp)
