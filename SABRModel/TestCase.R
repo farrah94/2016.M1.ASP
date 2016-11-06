@@ -1,7 +1,7 @@
 #### SABR case 1 from Korn & Tang (Wilmott)
 
 beta <- 0
-sigma0 <- 0.68
+sigma0 <- 0.68/100
 alpha <- 0.3691
 rho <- -0.0286
 spot <- 4.35/100
