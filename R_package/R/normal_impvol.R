@@ -19,22 +19,10 @@
 #' vol <- phbsasp::CalcNormalImpvol(price=price, spot=spot, strike=strike, t.exp=t.exp, r=r)
 #' @export
 CalcNormalImpvol <- function(
-  type = 'call', price, spot, forward = spot*exp((r-div)*t.exp),
+  type = "call", price, spot, forward = spot*exp((r-div)*t.exp),
   strike = forward, t.exp = 1, r = 0, div = 0
 ){
-      #------------------------------------------------
-      #------------------------------------------------
-      #Input: price is option price
-      #       S is current stock price (can be derived from the future price)
-      #       F is the future price
-      #       K is the strike price ( S by default)
-      #       T is the time to maturity (1 by default)
-      #       r is the risk-free rate (0 by default)
-      #
-      #Return: sigma is the volatility
-      #------------------------------------------------
-      #------------------------------------------------
-
+  
   n.price = length(price)
   n.strike = length(strike)
 
@@ -47,11 +35,11 @@ CalcNormalImpvol <- function(
 
   price.forward = price * exp(r*t.exp)
 
-  if( type == 'call' ) {
+  if( type == "call" ) {
     price.straddle <- 2*price.forward - (forward - strike.vec)
-  } else if( type == 'put' ) {
+  } else if( type == "put" ) {
     price.straddle <- 2*price.forward + (forward - strike.vec)
-  } else if( type == 'straddle') {
+  } else if( type == "straddle") {
     price.straddle <- price.forward
   }
 
