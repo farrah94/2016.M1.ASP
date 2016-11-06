@@ -45,6 +45,7 @@ CalcBsmImpvol <- function(
     }
 
     for(k in 1:n.price) {
+      # Be careful here.... Chekc how functional works in R.
       sub <- function(sigma){
         f <- CalcBsmPrice(
           type = type, forward = forward, strike = strike.vec[k], t.exp = t.exp, sigma = sigma
