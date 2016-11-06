@@ -19,17 +19,9 @@
 #' vol <- phbsasp::CalcBsmImpvol(price=price, spot=spot, strike=strike, t.exp=t.exp, r=r)
 #' @export
 CalcBsmImpvol <- function(
-  type = 'call', price, spot, forward = spot*exp((r-div)*t.exp),
+  type = "call", price, spot, forward = spot*exp((r-div)*t.exp),
   strike = forward, t.exp = 1, r = 0, div = 0
 ){
-    #-------------------------------------------------
-    #-------------------------------------------------
-    #Inputs: type the same as in function optionprice
-    #        price: the observed option price
-    #Return: implied volatility
-    #-------------------------------------------------
-    #-------------------------------------------------
-
     price.forward = price * exp( r*t.exp)
 
     n.price = length(price.forward)
