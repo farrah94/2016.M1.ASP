@@ -1,6 +1,6 @@
 #' Calculate normal model option price
 #'
-#' @param type option type either 'call' or 'put'
+#' @param type option type either "call" or "put"
 #' @param price Price
 #' @param spot current stock price
 #' @param forward forward stock price
@@ -18,7 +18,7 @@
 #' price <- phbsasp::CalcNormalPrice(spot=spot, t.exp = t.exp, sigma=sigma, strike=strike, r=r)
 #' @export
 CalcNormalPrice <- function(
-  type = 'call', spot, forward = spot*exp((r-div)*t.exp),
+  type = "call", spot, forward = spot*exp((r-div)*t.exp),
   strike = forward, t.exp = 1, r = 0, div = 0, sigma
 ){
 
