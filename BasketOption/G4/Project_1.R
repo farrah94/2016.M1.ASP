@@ -26,7 +26,6 @@ CalPrice <- function(sigma, corr, r, k,spot, weight, t.exp,type="Normal"){
 
 CalCV <- function(sigma, corr, r, k,spot, weight, t.exp){
   #------MC prcing call option price with CV-------
-  n.sample=100000
   price.GBMMC <- CalPrice(sigma = sigma,corr = corr,r = r,k = k,spot = spot,t.exp = t.exp,weight = weight,type="GBM")
   price.NormalMC <- CalPrice(sigma = sigma,corr = corr,r = r,k = k,spot = spot,t.exp = t.exp,weight = weight,type="Normal")
   cov.mat <- GetCovMat(sigma=sigma,corr.mat=corr)
