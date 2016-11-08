@@ -1,49 +1,50 @@
+library(phbsasp)
 library(ggplot2)
-library(statmod)
+## spread option MC pricing
+sigma = c(0.3,0.3)
+corr = matrix(c(1,0.2,0.2,1),2,2)
+r = 0.05
+k = 1
+spot = c(11,10)
+weight = c(1,-1)
+t.exp = 1
 
-#Baisc seting
-sigma <- c(0.3,-0.25)
-spot <- c(10,8)
-k <- 2
-corr <- matrix(c(1,0.2,0.2,1),2,2)
-weight <- c(1,-1)
-r <- 0.05
-t.exp <- 1
-n.sample <- 100000
-cov.mat <- sigma %*% t(sigma) * corr 
-cov.chol <- t(chol(cov.mat))
-n.asset <- length(spot)
-rn <- matrix( rnorm(n.asset*n.sample), nrow=n.asset )
-rn.corr <- cov.chol %*% rn
+loops = 1000
+price.MC <- sapply(1:loops,function(i){CalcBasketGBMMC(sigma = sigma,corr = corr,r = r,k = k,spot = spot,weight = weight,t.exp = t.exp)})
+price.CV <- sapply(1:loops,function(i){CalcBasketCV(sigma = sigma,corr = corr,r = r,k = k,spot = spot,weight = weight,t.exp = t.exp)})
 
-portfolio.spot <- t(weight) %*% spot
-portfolio.var <- t(weight) %*%  cov.mat %*% weight
-portfolio.sigma <- sqrt(portfolio.var)
+##[0] Reduction of variance
+hist(price.MC, col='blue',breaks = 30)
+hist(price.CV,col = "red",breaks = 30,add=T)
+data1 <- data.frame(price = c(price.MC,price.CV),type=rep(c("MC","CV"),c(loops,loops)))
+ggplot(aes(x=price,fill=type),data=data1)+geom_density(alpha=0.5)+xlim(c(1.58,1.63))
 
-s.mat <- spot*exp((r-0.5*sigma^2)*t.exp+sqrt(t.exp)*rn.corr)
-s.mat.normal <- spot*exp(r*t.exp)+sqrt(t.exp)*rn.corr
-portfolio.sample <- t(weight) %*% s.mat
-portfolio.sample.normal <- t(weight) %*% s.mat.normal
-payoffs <- pmax(portfolio.sample-k,0)
-payoffs.normal <- pmax(portfolio.sample.normal-k,0)
-
-#MC lognormal price,MC normal price, normal analystic price
-price.MC <- exp(-r*T)*payoffs
-price.normal <- exp(-r*T)*payoffs.normal
-price.normal.Analystic <- phbsasp::CalcBsmPrice(type = 'call',spot = portfolio.spot,strike = k,t.exp = t.exp,r = r,div = 0,sigma = portfolio.sigma)
-price.CV <- price.MC -  price.normal + price.normal.Analystic[1,1]
-
-#hist of MS,CV price
-par(mfrow=c(2,1))
-hist(price.MC,breaks = 1000,xlim = c(0,10),probability = T,ylim = c(0,0.5))
-hist(price.CV,breaks = 1000,xlim = c(0,10),probability = T,ylim = c(0,0.5))
-data1 <- data.frame(price = c(price.MC,price.CV),type=rep(c("MC","CV"),c(n.sample,n.sample)))
-ggplot(aes(x=price,fill=type),data=data1)+geom_density(alpha=0.5)+xlim(c(0,10))    
-#normal plots with MC/CV mean and sd
-par(mfrow=c(1,1))
-x <- seq(-7,10,by=0.01)
+x <- seq(1.58,1.63,by=0.0001)
 norm1 <- dnorm(x,mean = mean(price.MC),sd = sd(price.MC))
 norm2 <- dnorm(x,mean = mean(price.CV),sd = sd(price.CV))
 data <- data.frame(x=rep(x,2),price=c(norm1,norm2),Type=rep(c("MC","CV"),c(length(x),length(x))))
 ggplot(aes(x=x,y=price,color=Type),data = data) + geom_line()
-   
+
+1-var(price.CV)/var(price.MC)
+
+##[1] Normal exact VS normal MC
+price.Normal.MC <- sapply(1:loops,function(i){CalcBasketNormalMC(sigma = sigma,corr = corr,r = r,k = k,spot = spot,weight = weight,t.exp = t.exp)})
+
+cov.mat <- sigma %*% t(sigma) * corr 
+portfolio.spot <- as.vector(t(weight) %*% spot)
+portfolio.var <- as.vector(t(weight) %*%  cov.mat %*% weight)
+portfolio.sigma <- sqrt(portfolio.var)
+price.NormalAnalystic <- phbsasp::CalcNormalPrice(type = 'call',spot = portfolio.spot,strike = k,t.exp = t.exp,r = r,div = 0,sigma = portfolio.sigma)
+qplot(x = 1:loops,y = price.Normal.MC,geom = "point")+geom_hline(yintercept = price.NormalAnalystic,color="red")
+
+##[2] Lognormal MC VS Normal exact ATM
+qplot(x = 1:loops,y = price.MC,geom = "point")+geom_hline(yintercept = price.NormalAnalystic,color="red")
+
+##[3] Normal exact of single asset
+weight_single <- c(1,0)
+cov.mat <- sigma %*% t(sigma) * corr 
+portfolio.spot <- as.vector(t(weight_single) %*% spot)
+portfolio.var <- as.vector(t(weight_single) %*%  cov.mat %*% weight_single)
+portfolio.sigma <- sqrt(portfolio.var)
+(price.NormalAnalystic <- phbsasp::CalcNormalPrice(type = 'call',spot = portfolio.spot,strike = k,t.exp = t.exp,r = r,div = 0,sigma = portfolio.sigma))
+(price.NormalAnalystic <- phbsasp::CalcNormalPrice(type = 'call',spot = spot[1],strike = k[1],t.exp = t.exp,r = r,div = 0,sigma = sigma[1]))
