@@ -8,7 +8,7 @@
 source('covfunctions.R')
 CalPrice <- function(sigma, corr, r, k,spot, weight, t.exp,type="Normal"){
   #----MC prcing call option price----
-  n.sample=100000
+  n.sample=10000
   cov.chol <- GetCovMat(sigma=sigma,t.exp=t.exp,corr.mat=corr,chol=T)
   n.asset <- length(spot)
   rn <- matrix( rnorm(n.asset*n.sample), nrow=n.asset )
@@ -36,15 +36,3 @@ CalCV <- function(sigma, corr, r, k,spot, weight, t.exp){
   price <- as.numeric(price.GBMMC - price.NormalMC + price.NormalAnalystic)
   return(price)
 }
-
-# example1
-# sigma <- c(0.5,0.5)
-# spot <- c(20,10)
-# k <- 5
-# corr <- matrix(c(1,0.4,0.4,1),2,2)
-# weight <- c(1,-1)
-# r <- 0.05
-# t.exp <- 1
-# CalPrice(sigma, corr, r, k,spot, weight, t.exp,type="Normal")
-# CalPrice(sigma, corr, r, k,spot, weight, t.exp,type="GBM")
-# CalCV (sigma, corr, r, k,spot, weight, t.exp)
