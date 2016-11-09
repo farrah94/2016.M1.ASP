@@ -50,7 +50,7 @@ CalcBasket <- function(
     cov.chol <- t(chol(cov.mat))
     # Generate correlated random variables
     if (seed){
-      set.seed(1)
+      set.seed(seed)
     }
     rn <- matrix( rnorm(n.asset*n.sample), nrow=n.asset )
     rn.corr <- cov.chol %*% rn
@@ -104,7 +104,7 @@ CalcBasket <- function(
     
     # Generate correlated random variables
     if (seed){
-      set.seed(1)
+      set.seed(seed)
     }
     rn <- matrix( rnorm(n.asset*n.sample), nrow=n.asset )
     rn.corr.gbm <- cov.chol.gbm %*% rn
