@@ -23,7 +23,7 @@ CalcBasketGBMMC <- function(sigma, corr, r, k,spot, weight, t.exp,n.sample=10000
     s.mat <- spot*exp((r-0.5*sigma^2)*t.exp+sqrt(t.exp)*rn.corr)
     portfolio.sample <- t(weight) %*% s.mat
     payoffs <- pmax(portfolio.sample-k,0)
-    price <- exp(-r*T)*mean(payoffs)
+    price <- exp(-r*t.exp)*mean(payoffs)
     return(price)
 }
 
@@ -53,7 +53,7 @@ CalcBasketNormalMC <- function(sigma, corr, r, k,spot, weight, t.exp,n.sample=10
     s.mat <- spot*exp(r*t.exp)+sqrt(t.exp)*rn.corr
     portfolio.sample <- t(weight) %*% s.mat
     payoffs <- pmax(portfolio.sample-k,0)
-    price <- exp(-r*T)*mean(payoffs)
+    price <- exp(-r*t.exp)*mean(payoffs)
     return(price)
 }
 
@@ -74,12 +74,12 @@ CalcBasketCV <- function(sigma, corr, r, k,spot, weight, t.exp,n.sample=100000,s
     #------------------------------------------------
     #------------------------------------------------
     price.GBMMC <- CalcBasketGBMMC(sigma = sigma,corr = corr,r = r,k = k,spot = spot,t.exp = t.exp,weight = weight,seed = seed)
-    price.NormalMC <- CalcBasketNormalMC(sigma = sigma,corr = corr,r = r,k = k,spot = spot,t.exp = t.exp,weight = weight,seed = seed)
+    price.NormalMC <- CalcBasketNormalMC(sigma = sigma*spot,corr = corr,r = r,k = k,spot = spot,t.exp = t.exp,weight = weight,seed = seed)
     cov.mat <- sigma %*% t(sigma) * corr 
     portfolio.spot <- as.vector(t(weight) %*% spot)
     portfolio.var <- as.vector(t(weight) %*%  cov.mat %*% weight)
     portfolio.sigma <- sqrt(portfolio.var)
-    price.NormalAnalystic <- phbsasp::CalcNormalPrice(type = 'call',spot = portfolio.spot,strike = k,t.exp = t.exp,r = r,div = 0,sigma = portfolio.sigma)
+    price.NormalAnalystic <- phbsasp::CalcNormalPrice(type = 'call',spot = portfolio.spot,strike = k,t.exp = t.exp,r = r,div = 0,sigma = portfolio.sigma*portfolio.spot)
     price <- price.GBMMC - price.NormalMC + price.NormalAnalystic
     return(price)
 }
