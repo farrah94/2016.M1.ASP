@@ -1,8 +1,3 @@
-# title:  Project2 sabr model
-# author: Micheal
-# date:   2016-11-01
-
-
 #------------------Calibration SARB-------------------
 CalibrationNormalSabr <- function(strike,sigma,forward=100,t.exp=1){
     require(rootSolve)
@@ -51,20 +46,18 @@ CalcSabrPriceMC <- function(forward, spot=forward*exp(-pr*t.exp),strike,sigma0,a
     s[1,] = spot*exp(r*t.exp)
     vol[1,] = sigma0
     payoffs <- vector(length=n.sample*2)
-    index <- 2*(1:n.sample)-1
-    for(j in index){
-        w1=rnorm(n.periods)
-        w2=rnorm(n.periods)
-        w=w1
-        z=rho*w1+sqrt(1-rho^2)*w2
+    w1=matrix(rnorm(n.periods*n.sample),n.sample)
+    w1=cbind(w1,-w1)
+    w2=matrix(rnorm(n.periods*n.sample),n.sample)
+    w2=cbind(w2,-w2)
+    w=w1
+    z=rho*w1+sqrt(1-rho^2)*w2
+    for(j in 1:(2*n.sample)){
         for(i in 2:n.periods){
-            vol[i,j] = vol[i-1] * exp(-0.5*alpha^2*dt+alpha*sqrt(dt)*w[i-1])
-            s[i,j] = s[i-1,j] + s[i-1,j]^beta*vol[i-1,j]*sqrt(dt)*z[i-1]
-            vol[i,j+1] = vol[i-1] * exp(-0.5*alpha^2*dt+alpha*sqrt(dt)*(-w[i-1]))
-            s[i,j+1] = s[i-1,j+1] + s[i-1,j+1]^beta*vol[i-1,j+1]*sqrt(dt)*(-z[i-1])
+            vol[i,j] = vol[i-1] * exp(-0.5*alpha^2*dt+alpha*sqrt(dt)*w[i-1,j])
+            s[i,j] = s[i-1,j] + s[i-1,j]^beta*vol[i-1,j]*sqrt(dt)*z[i-1,j]
         }
         payoffs[j] = max(s[n.periods,j]-strike,0)
-        payoffs[j+1] = max(s[n.periods,j+1]-strike,0)
     }
     call.price <- exp(-r*t.exp)*mean(payoffs)
     return(call.price)
@@ -73,7 +66,7 @@ CalcSabrPriceMC <- function(forward, spot=forward*exp(-pr*t.exp),strike,sigma0,a
 
 #------------------Kennedy method   -----------------
 
-CalcSabrPriceKennedy <- function(forward,spot=forward*exp(-r*t.exp),strike,sigma0,alpha,beta=0,rho,t.exp,r,nodes=50){
+CalcSabrPriceKennedy <- function(forward,spot=forward*exp(-r*t.exp),strike,sigma0,alpha,beta=0,rho,t.exp,r,nodes=10){
     #------------------------------------------------
     #-----------only support beta=0 so far-----------
     #Imput: spot is current price

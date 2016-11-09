@@ -1,3 +1,7 @@
+library(ggplot2)
+library(phbsasp)
+source('project2_functions.R')
+
 #### test the situation when alpha is zero
 beta <- 0 
 sigma0 <- 1/100 
@@ -21,7 +25,8 @@ t.exp <- 10
 r <- 0 
 strike <- c( 4, seq(4.05,4.95,0.1), 5)/100 
 price.case1 <- c(0.011392, 0.0111, 0.010535, 0.009994, 0.009476, 0.008983, 0.008513,0.008068, 0.007646, 0.007247, 0.00687, 0.00669)
-price.case1.MC <- sapply(strike,function(i){CalcSabrPriceMC(spot = spot,strike = strike[1],sigma0 = sigma0,alpha = alpha,beta = beta,rho = rho,t.exp = t.exp,r = r,n.periods = 1000,n.sample = 1000)})
+price.case1.MC <- sapply(strike,function(x){CalcSabrPriceMC(spot = spot,strike = x,sigma0 = sigma0,alpha = alpha,beta = beta,rho = rho,t.exp = t.exp,r = r,n.periods = 1000,n.sample = 1000)})
+price.case1.Ken <- sapply(strike,function(x){CalcSabrPriceKennedy(spot = spot,strike = x,sigma0 = sigma0,alpha =alpha,beta = beta,rho = rho,t.exp = t.exp,r = r)})
 
 
 #### SABR case 2 from Korn & Tang (Wilmott) 
@@ -34,8 +39,8 @@ t.exp <- 30
 r <- 0 
 strike <- seq(3,4,0.1)/100 
 price.case2 <- c( 0.034919, 0.034346, 0.033789, 0.033248, 0.032724, 0.032216, 0.031724, 0.031248, 0.030789, 0.030346, 0.029919 )
-price.case2.MC <- sapply(strike,function(i){CalcSabrPriceMC(spot = spot,strike = strike[1],sigma0 = sigma0,alpha = alpha,beta = beta,rho = rho,t.exp = t.exp,r = r,n.periods = 1000,n.sample = 1000)})
-price.case2.Ken <- sapply(strike,function(i){CalcSabrPriceKennedy(spot = spot,strike = strike[1],sigma0 = sigma0,alpha =alpha,beta = beta,rho = rho,t.exp = t.exp,r = r)})
+price.case2.MC <- sapply(strike,function(x){CalcSabrPriceMC(spot = spot,strike = x,sigma0 = sigma0,alpha = alpha,beta = beta,rho = rho,t.exp = t.exp,r = r,n.periods = 1000,n.sample = 1000)})
+price.case2.Ken <- sapply(strike,function(x){CalcSabrPriceKennedy(spot = spot,strike = x,sigma0 = sigma0,alpha =alpha,beta = beta,rho = rho,t.exp = t.exp,r = r)})
 
 ##Impact of parameters
 
@@ -69,3 +74,8 @@ sigma03 <- CalcNormalImpvolSabrHagan(forward = spot,strike = strike,t.exp = t.ex
 plot(strike,sigma01,"l",ylim = c(min(c(range(sigma01,sigma02,sigma03))),max(c(range(sigma01,sigma02,sigma03)))))
 lines(strike,sigma02,col='red')
 lines(strike,sigma03,col='blue')
+
+##Calibration Sabr
+imvol <- CalcNormalImpvolSabrHagan(forward = 10,strike = c(7,10,12),t.exp = 1,sigma0 = 0.3,alpha = 0.22,rho = 0.32)
+CalibrationNormalSabr(strike = c(7,10,12),sigma = imvol,forward = 10,t.exp = 1)
+
