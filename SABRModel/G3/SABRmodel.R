@@ -2,57 +2,18 @@
 ################################################## 
 ########### Run Code for Presentation ############
 ################### Contains: ####################
-############ - Kennedy Model         #############
 ############ - MC Method             #############
+############ - Kennedy Method   n    #############
 ############ - Parameter Calibration #############
 ############ - Plots for Variation   #############
 ##################################################
 
 
-library(phbs)
+library(phbsasp)
 library(rootSolve)
 library(statmod)
 
-
-
-# Example 1
-beta <- 0
-sigma0 <- 0.68/100
-alpha <- 0.3691
-rho <- -0.0286
-spot <- 4.35/100
-t.exp <- 10
-r <- 0
-strike <- c( 4, seq(4.05,4.95,0.1), 5)/100
-n.time <- 100
-n.sample <- 1e5
-
-sigma.alpha.rho <- function(forward, strike, t.exp){
-  sub <- function(x){
-    sigma <- phbsasp::CalcNormalImpvolSabrHagan(forward=spot, strike = strike, t.exp = t.exp, sigma0 = sigma0, alpha = alpha, rho = rho)
-    f1 <- phbsasp:::CalcNormalImpvolSabrHagan(forward=spot, strike = strike[1], t.exp = t.exp, sigma0 = x[1], alpha = x[2], rho = x[3]) - sigma[1]
-    f2 <- phbsasp:::CalcNormalImpvolSabrHagan(forward=spot, strike = strike[2], t.exp = t.exp, sigma0 = x[1], alpha = x[2], rho = x[3]) - sigma[2]
-    f3 <- phbsasp:::CalcNormalImpvolSabrHagan(forward=spot, strike = strike[3], t.exp = t.exp, sigma0 = x[1], alpha = x[2], rho = x[3]) - sigma[3]
-    return(c(f1, f2, f3))
-  }
-  values <- multiroot(f = sub, c(0.005, 0.3, 0.02))$root
-  names(values) <- c("sigma0","alpha","rho")
-  return(values)
-}
-
-CalcSabrPriceKennedy <- function(forward,spot=forward*exp(-r*t.exp),strike,sigma0,alpha,beta=0,rho,t.exp,r,nodes=5){
-  ghq <- statmod::gauss.quad.prob(nodes, dist='normal')
-  z <- ghq$nodes
-  w <- ghq$weights
-  sigmaT <- sigma0*exp(-0.5*alpha^2*t.exp+alpha*sqrt(t.exp)*z)
-  d = log(sigmaT/sigma0)/(alpha*sqrt(t.exp))
-  EVt.cond <- sigma0^2*sqrt(t.exp)/(2*alpha) * (pnorm(d+alpha*sqrt(t.exp))-pnorm(d-alpha*sqrt(t.exp)))/dnorm(d+alpha*sqrt(t.exp))
-  yita <- EVt.cond/sqrt(t.exp)
-  CN.cond <- matrix(numeric(length(strike)*length(z)),nrow=(length(strike)))
-  CN.cond <- phbsasp::CalcNormalPrice(type = 'call', forward = spot,spot  =  spot+rho/alpha*(sigmaT-sigma0), strike = strike, t.exp = t.exp,sigma = sqrt(1-rho^2)*yita,r = r,div = 0)
-  price.ken <- sum(w*CN.cond)
-  return(price.ken)
-}
+################## Implement Montecarlo Pricing ###############
 
 sabr.mc <- function(spot = spot, strike = strike, alpha = alpha, rho = rho, sigma0 = sigma0, n.time = n.time, n.sample = n.sample, t.exp = t.exp, r = 0) { 
   d.t.exp <- (t.exp/n.time)
@@ -78,20 +39,83 @@ sabr.mc <- function(spot = spot, strike = strike, alpha = alpha, rho = rho, sigm
   return(price.mc)
 }
 
-kennedy.price <- c(rep(0,length(strike)))
-for (i in 1:length(strike)){
-  (kennedy.price[i] <- CalcSabrPriceKennedy(forward=spot,strike=strike[i],sigma0=sigma0,alpha=alpha,beta=beta,rho=rho,t.exp=t.exp,r=r,nodes=5))
+############### Implement Kennedy-Model Pricing #################
+
+CalcSabrPriceKennedy <- function(forward,spot=forward*exp(-r*t.exp),strike,sigma0,alpha,beta=0,rho,t.exp,r,nodes=50){
+  ghq <- statmod::gauss.quad.prob(nodes, dist='normal')
+  z <- ghq$nodes
+  w <- ghq$weights
+  sigmaT <- sigma0*exp(-0.5*alpha^2*t.exp+alpha*sqrt(t.exp)*z)
+  d = log(sigmaT/sigma0)/(alpha*sqrt(t.exp))
+  EVt.cond <- sigma0^2*sqrt(t.exp)/(2*alpha) * (pnorm(d+alpha*sqrt(t.exp))-pnorm(d-alpha*sqrt(t.exp)))/dnorm(d+alpha*sqrt(t.exp))
+  yita <- EVt.cond/sqrt(t.exp)
+  CN.cond <- phbsasp::CalcNormalPrice(type = 'call',spot  =  spot+rho/alpha*(sigmaT-sigma0), strike = strike, t.exp = t.exp,sigma = sqrt(1-rho^2)*yita,r = r,div = 0)
+  return(sum(w*CN.cond))
 }
-(kennedy.price)
+
+############### Implement a Calibration process #################
+
+sigma.alpha.rho <- function(forward, sigma, strike, t.exp){
+  sub <- function(x){
+    
+    f1 <- phbsasp::CalcNormalImpvolSabrHagan(forward=forward, strike = strike[1], t.exp = t.exp, sigma0 = x[1], alpha = x[2], rho = x[3])
+    f2 <- phbsasp::CalcNormalImpvolSabrHagan(forward=forward, strike = strike[2], t.exp = t.exp, sigma0 = x[1], alpha = x[2], rho = x[3]) 
+    f3 <- phbsasp::CalcNormalImpvolSabrHagan(forward=forward, strike = strike[3], t.exp = t.exp, sigma0 = x[1], alpha = x[2], rho = x[3]) 
+    variation1 <- f1 - sigma[1]
+    variation2 <- f2 - sigma[2]
+    variation3 <- f2 - sigma[3]
+    
+    return(c(variation1, variation2, variation3))
+  }
+  values <- multiroot(f = sub, start = c(0.05, 0.3, -0.02))
+  root <- values$root
+  names(root) <- c("sigma0","alpha","rho")
+  return(root)
+}
+
+
+##################################### - Example 1
+
+beta <- 0
+sigma0 <- 0.68/100
+alpha <- 0.3691
+rho <- -0.0286
+spot <- 4.35/100
+t.exp <- 10
+r <- 0
+strike <- c( 4, seq(4.05,4.95,0.1), 5)/100
+n.time <- 100
+n.sample <- 1e5
+
+
+################# MC Method - Exmple 1 ###################
 
 (mc.price <- sabr.mc(spot = spot, strike = strike, alpha = alpha, rho = rho, sigma0 = sigma0, n.time = n.time, n.sample = n.sample, t.exp = t.exp, r = 0))
 (mc.imp.vol <- phbsasp::CalcNormalImpvol(type = 'call', price = mc.price,spot = spot, forward = spot, strike = strike, t.exp = t.exp))
 plot(strike, mc.imp.vol, type = 'l')
 
-(cal.values <- sigma.alpha.rho(forward=spot, strike=strike[c(1,5,12)], t.exp=t.exp, area = c(0.005, 0.3, 0.02)))
+################# Kennedy Method - Example 1 #############
 
+# Kennedy delivers a nice smile only if we increase the alpa parameters by quite a lot
 
-# Example 2
+alpha <- 1.5
+
+kennedy.price <- c(rep(0,length(strike)))
+for (i in 1:length(strike)){
+  (kennedy.price[i] <- CalcSabrPriceKennedy(forward=spot,strike=strike[i],sigma0=sigma0,alpha=alpha,beta=beta,rho=rho,t.exp=t.exp,r=r,nodes=5))
+}
+(kennedy.price)
+(kennedy.price.Implvol <-phbsasp::CalcNormalImpvol(type = 'call', price = kennedy.price,spot = spot, forward = spot, strike = strike, t.exp = t.exp))
+plot(strike, kennedy.price.Implvol, type = 'l')
+
+################ Calibration - Example 1 #################
+
+alpha <- 0.3691
+
+calc.values <- sigma.alpha.rho(forward=spot, sigma=sigma, strike=strike, t.exp=t.exp)
+(calc.values) 
+
+##################################### - Example 2
 
 beta <- 0
 sigma0 <- 1/100
@@ -104,18 +128,32 @@ strike <- seq(3,4,0.1)/100
 n.time <- 100
 n.sample <- 1e5
 
-kennedy.price <- c(rep(0,length(strike)))
-for (i in 1:length(strike)){
-  (kennedy.price[i] <- CalcSabrPriceKennedy(forward=spot,strike=strike[i],sigma0=sigma0,alpha=alpha,beta=beta,rho=rho,t.exp=t.exp,r=r,nodes=5))
-}
-(kennedy.price)
+################# MC Method - Exmple 2 ###################
 
 (mc.price <- sabr.mc(spot = spot, strike = strike, alpha = alpha, rho = rho, sigma0 = sigma0, n.time = n.time, n.sample = n.sample, t.exp = t.exp, r = 0))
 (mc.imp.vol <- phbsasp::CalcNormalImpvol(type = 'call', price = mc.price,spot = spot, forward = spot, strike = strike, t.exp = t.exp))
 plot(strike, mc.imp.vol, type = 'l')
 
-(cal.values <- sigma.alpha.rho(forward=spot, strike=strike[c(1,5,12)], t.exp=t.exp, area = c(0.005, 0.3, 0.02)))
+################# Kennedy Method - Example 1 #############
 
+##### Kennedy delivers a nice smile only if we increase the alpa parameters by quite a lot
+
+alpha <- 1.5
+
+kennedy.price <- c(rep(0,length(strike)))
+for (i in 1:length(strike)){
+  (kennedy.price[i] <- CalcSabrPriceKennedy(forward=spot,strike=strike[i],sigma0=sigma0,alpha=alpha,beta=beta,rho=rho,t.exp=t.exp,r=r,nodes=5))
+}
+(kennedy.price)
+(kennedy.price.Implvol <-phbsasp::CalcNormalImpvol(type = 'call', price = kennedy.price,spot = spot, forward = spot, strike = strike, t.exp = t.exp))
+plot(strike, kennedy.price.Implvol, type = 'l')
+
+################ Calibration - Example 2 #################
+
+alpha <- 0.3691
+
+calc.values <- sigma.alpha.rho(forward=spot, sigma=mc.imp.vol, strike=strike[c(1,2,3)], t.exp=t.exp)
+(calc.values)
 
 ######### PLOTS ##########
 
@@ -150,7 +188,7 @@ lines(strike, implvol.3, col="yellow")
 
 ############ Increasing sigma0 ##############
 
-alpha <-2
+alpha <- 2
 
 sigma01 <- 0.0068
 sigma02 <- 0.0078
