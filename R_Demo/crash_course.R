@@ -279,16 +279,34 @@ browseURL( "https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/00Index.
 
 head( cars )
 
+## Linear regression
 cars.fitted = lm(dist ~ speed, data = cars)
 summary( cars.fitted )
 
 plot( cars$speed, cars$dist, xlab = "Speed", ylab = "Stopping Distance" )
 abline(cars.fitted, col="red", lw=2)
 
+
+## Polynomial regression
+plot(cars, xlab = "Speed (mph)", ylab = "Stopping distance (ft)",
+     las = 1, xlim = c(0, 25))
+d <- seq(0, 25, length.out = 200)
+for(degree in 1:4) {
+  fm <- lm(dist ~ poly(speed, degree), data = cars)
+  assign(paste("cars", degree, sep = "."), fm)
+  lines(d, predict(fm, data.frame(speed = d)), col = degree)
+}
+anova(cars.1, cars.2, cars.3, cars.4)
+
+
 ### XL, CVS file
 
 journals = read.csv("journals.csv", header = TRUE)
 journals
+
+uci <- "http://archive.ics.uci.edu/ml/machine-learning-databases/"
+uci <- paste(uci,"echocardiogram/echocardiogram.data",sep="")
+ecc <- read.csv(uci)
 
 
 ### Execution time
