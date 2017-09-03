@@ -1,2 +1,1 @@
-# phbs.asp.2016
-Applied Stochastic Processes @ PHBS
+# Applied Stochastic Processes (2016-17 M1)
